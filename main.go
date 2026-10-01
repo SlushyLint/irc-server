@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls" //
 	"fmt"
 	"net"
 )
@@ -10,7 +11,19 @@ var clients []net.Conn
 
 func main() {
 	// tcp listener on port 42069
-	listener, err := net.Listen("tcp", ":42069")
+	// listener, err := net.Listen("tcp", ":42069")
+	// the above was used before i decided to fucking encrypt this shit
+	// because why the hell not
+
+	cert, err := tls.LoadX509KeyPair("server.crt", "server.key")
+	if err != nil {
+		panic(err)
+	}
+	config := &tls.Config{ // just the configuration for the 100% unnecissary encryption
+		Certificates: []tls.Certificate{cert},
+	}
+
+	listener, err := tls.Listen("tcp", ":42069", config)
 
 	if err != nil { // check if there is an error. if the error is not empty, quit
 		panic(err)
